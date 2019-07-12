@@ -576,7 +576,7 @@ export default class Player extends Component {
           <PlayControls onBack={this.handleBack} onAhead={this.handleAhead} onReplay={this.handleReplay} onTogglePause={this.handleTogglePause} onContinue={this.handleContinue} onToggleRuby={this.handleToggleRuby} onToggleHelp={this.handleToggleHelp} onNumberKey={this.handleNumberKey} onExportCard={this.handleExportCard} onToggleFullscreen={this.handleToggleFullscreen} />
         </div>
         <button className="Player-big-button Player-exit-button" onClick={this.handleExit}>↩</button>
-        <div className="Player-subtitle-controls-panel">
+        <div className="Player-subtitle-controls-panel" style={{display: this.props.preferences.showHelp ? 'block' : 'none'}}>
           Subtitle Mode:&nbsp;
           <Select options={Object.entries(MODE_TITLES).map(([k, v]) => ({value: k, label: v}))} onChange={this.handleSetSubtitleMode} value={this.state.subtitleMode} />&nbsp;&nbsp;
           <button onClick={e => { e.preventDefault(); this.handleToggleHelp(); }}>Toggle Help</button>
