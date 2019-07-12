@@ -226,7 +226,7 @@ export default class Player extends Component {
   initialSubtitleState = (mode) => {
     if ((mode === 'qcheck') || (mode === 'listen')) {
       return { tracksRevealed: 0};
-    } else if (mode === 'manual') {
+    } else if (mode === 'manual' || mode === 'read') {
       return { trackHidden: [] };
     } else {
       return null;
@@ -483,7 +483,7 @@ export default class Player extends Component {
   };
 
   handleNumberKey = (number) => {
-    if (this.state.subtitleMode === 'manual') {
+    if (this.state.subtitleMode === 'manual' || this.state.subtitleMode === 'read') {
       const newTrackHidden = [...this.state.subtitleState.trackHidden];
       const znumber = number - 1;
       newTrackHidden[znumber] = !newTrackHidden[znumber];
@@ -550,7 +550,7 @@ export default class Player extends Component {
 
                 if (((this.state.subtitleMode === 'qcheck') || (this.state.subtitleMode === 'listen')) && (subTrackIdx >= this.state.subtitleState.tracksRevealed)) {
                   hidden = true;
-                } else if ((this.state.subtitleMode === 'manual') && (this.state.subtitleState.trackHidden[subTrackIdx])) {
+                } else if (((this.state.subtitleMode === 'manual') || (this.state.subtitleMode === 'read')) && (this.state.subtitleState.trackHidden[subTrackIdx])) {
                   hidden = true;
                 }
 
