@@ -136,7 +136,7 @@ export default class AnnoText extends PureComponent {
   };
 
   renderTooltip = () => {
-    const { annoText, searchDictionaries } = this.props;
+    const { annoText, searchDictionaries, searchKanjiDictionary } = this.props;
 
     const tooltipRange = this.state.selectionRange || this.state.hoverRange;
 
@@ -160,6 +160,8 @@ export default class AnnoText extends PureComponent {
                 const lemma = wordAnno.data.lemma || cpSlice(annoText.text, wordAnno.cpBegin, wordAnno.cpEnd);
                 const encLemma = encodeURIComponent(lemma);
                 const searchHits = searchDictionaries(lemma);
+                const searchKanjiHits = searchKanjiDictionary(lemma);
+                console.log(searchKanjiHits);
                 return (
                   <li key={`wordinfo-${wordAnno.cpBegin}:${wordAnno.cpEnd}`} className="AnnoText-tooltip-search-words-item">
                     <div className="AnnoText-tooltip-external-links">
@@ -169,7 +171,12 @@ export default class AnnoText extends PureComponent {
                       <SystemBrowserLink href={'https://jisho.org/search/' + encLemma}>Jisho</SystemBrowserLink>
                     </div>
                     <div className="AnnoText-tooltip-search-word">{lemma}</div>
-                    <div className="AnnoText-tooltip-search-word test">{this.props.kanjiDictionary["釣"]}</div>
+                    <ul className="AnnoText-tooltip-dict-hits">{searchKanjiHits.map((entry, idx) => (
+                      <li key={idx} className="AnnoText-tooltip-dict-hit">
+                        <div className="Annotext-tooltip-dict-name">rtk</div>
+                        <div className="Annotext-tooltip-dict-hit-text">{entry.Keyword}</div>
+                      </li>
+                    ))}</ul>
                     <ul className="AnnoText-tooltip-dict-hits">{searchHits.map(({dictionaryName, text}, idx) => (
                       <li key={idx} className="AnnoText-tooltip-dict-hit">
                         <div className="Annotext-tooltip-dict-name">{dictionaryName}</div>

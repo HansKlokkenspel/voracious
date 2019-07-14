@@ -9,7 +9,7 @@ export { importEpwing } from './epwing';
 const fs = window.require('fs-extra'); // use window to avoid webpack
 
 const loadAndIndexYomichanZip = async (zipfn, builtin, reportProgress) => {
-  const {name, termEntries} = await loadYomichanZip(zipfn, reportProgress);
+  const { name, termEntries } = await loadYomichanZip(zipfn, reportProgress);
 
   if (reportProgress) {
     reportProgress('Indexing ' + name + '...');
@@ -35,23 +35,33 @@ const scanDirForYomichanZips = async (dir, builtin, reportProgress) => {
   return result;
 };
 
-export const loadKanjiDictionary = async (reportProgress) => {
+export const loadKanjiDictionary = (reportProgress, kanjiDictionary) => {
   if (reportProgress) {
     reportProgress('Opening Kanji dictionary...');
   }
 
   const results = [];
   const fn = path.join(getResourcesPath(), 'kanji-dictionaries\\kanji.csv');
-  
+
   fs.createReadStream(fn)
-  .pipe(stripBomStream())
-  .pipe(csv({ separator: '\;' }))
-  .on('data', (data) => results.push(data))
-  .on('end', () => {
-    console.log(results);
-  });
-  
-  return [];
+    .pipe(stripBomStream())
+    .pipe(csv({ separator: '\;' }))
+    .on('data', (data) => results.push(data))
+    .on('end', () => {
+      results.map((row) => {
+        kanjiDictionary[row.Kanji] = {
+          Kanji: row.Kanji,
+          OnReading: row.OnReading,
+          KunReading: row.KunReading,
+          Constituents: row.Constituents,
+          Keyword: row.Keyword,
+          Koohii1: row.Koohii1,
+          Koohii2: row.Koohii2,
+        }
+      })
+    });
+
+  return results;
 }
 
 export const loadDictionaries = async (reportProgress) => {

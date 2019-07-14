@@ -31,7 +31,7 @@ const MainStateRecord = new Record({
   modalLoadingMessage: null,
   collections: new IMap(), // locator -> CollectionRecord
   dictionaries: new IMap(), // name -> object that we don't mutate (TODO: make it a Record)
-  kanjiDictionary: new IMap(),
+  kanjiDictionary: null,
   preferences: new PreferencesRecord(),
 });
 
@@ -84,11 +84,11 @@ export default class MainActions {
 
     if (!process.argv.includes('--nodicts')) {
       this._setLoadingMessage('Loading dictionaries...');
-      
+
       await this._loadKanjiDictionary(progressMsg => {
         this._setLoadingMessage(progressMsg);
       });
-      
+
       await this._loadDictionaries(progressMsg => {
         this._setLoadingMessage(progressMsg);
       });
@@ -112,7 +112,7 @@ export default class MainActions {
     for (const vid of collectionIndex.videos) {
       const subTrackKVs = []; // [k, v] pairs
       for (const stid of vid.subtitleTrackIds) {
-        subTrackKVs.push([stid, new SubtitleTrackRecord({id: stid})]);
+        subTrackKVs.push([stid, new SubtitleTrackRecord({ id: stid })]);
       }
 
       collectionVideoRecords.push([vid.id, new VideoRecord({
@@ -248,7 +248,7 @@ export default class MainActions {
       if (!subTrack.chunkSet && !subTrack.loading) {
         const stid = subTrack.id;
         console.log('loading sub track...', collectionLocator, videoId, stid);
-        const {language, chunkSet} = await loadCollectionSubtitleTrack(collectionLocator, stid);
+        const { language, chunkSet } = await loadCollectionSubtitleTrack(collectionLocator, stid);
         // NOTE: It's OK to update state, we are iterating from immutable object
         this.state.set(this.state.get().updateIn(['collections', collectionLocator, 'videos', videoId, 'subtitleTracks', stid], subTrack => subTrack.merge({
           language,
@@ -289,7 +289,7 @@ export default class MainActions {
   };
 
   addLocalCollection = async (name, directory) => {
-    await this._addCollection(name, 'local:'+directory);
+    await this._addCollection(name, 'local:' + directory);
     await this._storageSaveProfile();
   };
 
@@ -340,23 +340,11 @@ export default class MainActions {
   };
 
   _loadKanjiDictionary = async (reportProgress) => {
-    const file = await loadKanjiDictionary(reportProgress);
+    const kanjiDictionary = [];
 
-    var kanjiDictionary = [];
+    loadKanjiDictionary(reportProgress, kanjiDictionary);
 
-    file.map((row) => kanjiDictionary.push({
-        key:   row.Kanji,
-        value: {
-          OnReading: row.OnReading,
-          KunReading: row.KunReading,
-          Constituents: row.Constituents,
-          Keyword: row.Keyword,
-          Koohii1: row.Koohii1,
-          Koohii2: row.Koohii2,
-        }
-    }));
-
-    console.log(kanjiDictionary);
+    this.state.set(this.state.get().set('kanjiDictionary', kanjiDictionary));
   }
 
   _loadDictionaries = async (reportProgress) => {
@@ -410,26 +398,18 @@ export default class MainActions {
     return results;
   };
 
-  // searchKanjiDictiony = (word) => {
-  //   const state = this.state.get();
+  searchKanjiDictionary = (word) => {
+    const dict = this.state.get().kanjiDictionary;
 
-  //   const results = [];
+    const results = [];
+    for (const c of word) {
+      if (dict[c] !== undefined) {
+        results.push(dict[c]);
+      }
+    }
 
-  //   for (const [name, info] of state.dictionaries) {
-  //     if (!state.preferences.disabledDictionaries.has(name)) {
-  //       for (const text of searchIndex(info.index, word)) {
-  //         results.push({
-  //           kanjiCharacter: name,
-  //           keyword: keyword,
-  //           koohiiStory1: story1,
-  //           koohiiStory2: story2,
-  //         });
-  //       }
-  //     }
-  //   }
-
-  //   return results;
-  // };
+    return results;
+  };
 
   reloadDictionaries = async (reportProgress) => {
     await this._loadDictionaries(reportProgress);
