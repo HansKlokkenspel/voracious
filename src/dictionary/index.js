@@ -1,5 +1,7 @@
 import path from 'path';
 
+import csv from 'csv-parser'
+import stripBomStream from 'strip-bom-stream'
 import { getResourcesPath, getUserDataPath } from '../util/appPaths';
 import { loadYomichanZip, indexYomichanEntries } from './yomichan';
 export { importEpwing } from './epwing';
@@ -32,6 +34,25 @@ const scanDirForYomichanZips = async (dir, builtin, reportProgress) => {
   }
   return result;
 };
+
+export const loadKanjiDictionary = async (reportProgress) => {
+  if (reportProgress) {
+    reportProgress('Opening Kanji dictionary...');
+  }
+
+  const results = [];
+  const fn = path.join(getResourcesPath(), 'kanji-dictionaries\\kanji.csv');
+  
+  fs.createReadStream(fn)
+  .pipe(stripBomStream())
+  .pipe(csv({ separator: '\;' }))
+  .on('data', (data) => results.push(data))
+  .on('end', () => {
+    console.log(results);
+  });
+  
+  return [];
+}
 
 export const loadDictionaries = async (reportProgress) => {
   const result = [];

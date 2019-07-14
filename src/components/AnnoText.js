@@ -169,6 +169,7 @@ export default class AnnoText extends PureComponent {
                       <SystemBrowserLink href={'https://jisho.org/search/' + encLemma}>Jisho</SystemBrowserLink>
                     </div>
                     <div className="AnnoText-tooltip-search-word">{lemma}</div>
+                    <div className="AnnoText-tooltip-search-word test">{this.props.kanjiDictionary["釣"]}</div>
                     <ul className="AnnoText-tooltip-dict-hits">{searchHits.map(({dictionaryName, text}, idx) => (
                       <li key={idx} className="AnnoText-tooltip-dict-hit">
                         <div className="Annotext-tooltip-dict-name">{dictionaryName}</div>

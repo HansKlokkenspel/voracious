@@ -564,7 +564,7 @@ export default class Player extends Component {
                           </div>
                         ) : null}
                         <div className={'Player-text-chunk-annotext Player-text-chunk-annotext-' + (hidden ? 'hidden' : 'visible')}>
-                          <AnnoText key={chunk.uid} annoText={chunk.annoText} language={subTrack.language} showRuby={this.props.preferences.showRuby} searchDictionaries={this.props.searchDictionaries} ref={(subTrackIdx === 0) ? (c => { this.firstAnnoTextComponent = c; }) : null} />
+                          <AnnoText key={chunk.uid} annoText={chunk.annoText} language={subTrack.language} showRuby={this.props.preferences.showRuby} searchDictionaries={this.props.searchDictionaries} kanjiDictionary={{ 釣:"test 釣" }} ref={(subTrackIdx === 0) ? (c => { this.firstAnnoTextComponent = c; }) : null} />
                         </div>
                       </div>
                     </div>

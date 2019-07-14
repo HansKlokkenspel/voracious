@@ -2,7 +2,7 @@ import { List, Record, Map as IMap, OrderedMap, Set as ISet } from 'immutable';
 
 import createStorageBackend from './storage';
 import { getCollectionIndex, loadCollectionSubtitleTrack } from './library';
-import { loadDictionaries, searchIndex } from './dictionary';
+import { loadDictionaries, loadKanjiDictionary, searchIndex } from './dictionary';
 
 const fs = window.require('fs-extra'); // use window to avoid webpack
 const { process } = window.require('electron').remote;
@@ -31,6 +31,7 @@ const MainStateRecord = new Record({
   modalLoadingMessage: null,
   collections: new IMap(), // locator -> CollectionRecord
   dictionaries: new IMap(), // name -> object that we don't mutate (TODO: make it a Record)
+  kanjiDictionary: new IMap(),
   preferences: new PreferencesRecord(),
 });
 
@@ -83,7 +84,11 @@ export default class MainActions {
 
     if (!process.argv.includes('--nodicts')) {
       this._setLoadingMessage('Loading dictionaries...');
-
+      
+      await this._loadKanjiDictionary(progressMsg => {
+        this._setLoadingMessage(progressMsg);
+      });
+      
       await this._loadDictionaries(progressMsg => {
         this._setLoadingMessage(progressMsg);
       });
@@ -334,6 +339,26 @@ export default class MainActions {
     await this._storageSaveProfile();
   };
 
+  _loadKanjiDictionary = async (reportProgress) => {
+    const file = await loadKanjiDictionary(reportProgress);
+
+    var kanjiDictionary = [];
+
+    file.map((row) => kanjiDictionary.push({
+        key:   row.Kanji,
+        value: {
+          OnReading: row.OnReading,
+          KunReading: row.KunReading,
+          Constituents: row.Constituents,
+          Keyword: row.Keyword,
+          Koohii1: row.Koohii1,
+          Koohii2: row.Koohii2,
+        }
+    }));
+
+    console.log(kanjiDictionary);
+  }
+
   _loadDictionaries = async (reportProgress) => {
     const dictionaries = await loadDictionaries(reportProgress);
 
@@ -384,6 +409,27 @@ export default class MainActions {
 
     return results;
   };
+
+  // searchKanjiDictiony = (word) => {
+  //   const state = this.state.get();
+
+  //   const results = [];
+
+  //   for (const [name, info] of state.dictionaries) {
+  //     if (!state.preferences.disabledDictionaries.has(name)) {
+  //       for (const text of searchIndex(info.index, word)) {
+  //         results.push({
+  //           kanjiCharacter: name,
+  //           keyword: keyword,
+  //           koohiiStory1: story1,
+  //           koohiiStory2: story2,
+  //         });
+  //       }
+  //     }
+  //   }
+
+  //   return results;
+  // };
 
   reloadDictionaries = async (reportProgress) => {
     await this._loadDictionaries(reportProgress);
