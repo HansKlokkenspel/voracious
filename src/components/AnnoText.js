@@ -56,7 +56,7 @@ export default class AnnoText extends PureComponent {
 
   setSelRange = (newSelRange) => {
     if (!Immutable.is(newSelRange, this.state.selectionRange)) {
-      this.setState({selectionRange: newSelRange});
+      this.setState({ selectionRange: newSelRange });
     }
   };
 
@@ -65,7 +65,7 @@ export default class AnnoText extends PureComponent {
   };
 
   setSelection = (begin, end) => {
-    this.setSelRange(new CPRange({cpBegin: begin, cpEnd: end}));
+    this.setSelRange(new CPRange({ cpBegin: begin, cpEnd: end }));
   };
 
   getSelectedText = () => {
@@ -85,7 +85,7 @@ export default class AnnoText extends PureComponent {
     const hitWordAnnos = getKindAtIndex(this.props.annoText, 'word', cpIndex);
     if (hitWordAnnos.length > 0) {
       const a = hitWordAnnos[0];
-      return new CPRange({cpBegin: a.cpBegin, cpEnd: a.cpEnd});
+      return new CPRange({ cpBegin: a.cpBegin, cpEnd: a.cpEnd });
     } else {
       return null;
     }
@@ -101,7 +101,7 @@ export default class AnnoText extends PureComponent {
       if (this.state.hoverRange) {
         this.setSelection(this.state.hoverRange.cpBegin, this.state.hoverRange.cpEnd);
       } else {
-        this.setSelection(cpIndex, cpIndex+1);
+        this.setSelection(cpIndex, cpIndex + 1);
       }
     }
     document.addEventListener('mouseup', this.handleMouseUp);
@@ -110,7 +110,7 @@ export default class AnnoText extends PureComponent {
   handleCharMouseEnter = (e) => {
     const cpIndex = +e.currentTarget.getAttribute('data-index');
 
-    this.setState({hoverRange: this.wordRangeFromIndex(cpIndex)});
+    this.setState({ hoverRange: this.wordRangeFromIndex(cpIndex) });
 
     if (this.dragStartIndex !== null) {
       let a = this.dragStartIndex;
@@ -118,7 +118,7 @@ export default class AnnoText extends PureComponent {
       if (b < a) {
         [a, b] = [b, a];
       }
-      this.setSelection(a, b+1);
+      this.setSelection(a, b + 1);
     }
     this.clearHoverTimeout();
   };
@@ -174,10 +174,11 @@ export default class AnnoText extends PureComponent {
                     <ul className="AnnoText-tooltip-dict-hits">{searchKanjiHits.map((entry, idx) => (
                       <li key={idx} className="AnnoText-tooltip-dict-hit">
                         <div className="Annotext-tooltip-dict-name">rtk</div>
-                        <div className="Annotext-tooltip-dict-hit-text">{entry.Keyword}</div>
+                        <div className="Annotext-tooltip-dict-hit-text">{entry.Kanji}: {entry.Keyword}</div>
+                        <div className="Annotext-tooltip-dict-hit-text">Koohii: {entry.Koohii1}</div>
                       </li>
                     ))}</ul>
-                    <ul className="AnnoText-tooltip-dict-hits">{searchHits.map(({dictionaryName, text}, idx) => (
+                    <ul className="AnnoText-tooltip-dict-hits">{searchHits.map(({ dictionaryName, text }, idx) => (
                       <li key={idx} className="AnnoText-tooltip-dict-hit">
                         <div className="Annotext-tooltip-dict-name">{dictionaryName}</div>
                         <div className="Annotext-tooltip-dict-hit-text">{text}</div>
@@ -188,7 +189,7 @@ export default class AnnoText extends PureComponent {
               })}
             </ul>
             {(hitWordAnnos.length > limitedHitWordAnnos.length) ? (
-              <div style={{fontSize: '0.5em', marginTop: 10, textAlign: 'center', fontStyle: 'italic'}}> and {hitWordAnnos.length - limitedHitWordAnnos.length} more...</div>
+              <div style={{ fontSize: '0.5em', marginTop: 10, textAlign: 'center', fontStyle: 'italic' }}> and {hitWordAnnos.length - limitedHitWordAnnos.length} more...</div>
             ) : null}
           </div>
         </Tooltip>
@@ -230,10 +231,10 @@ export default class AnnoText extends PureComponent {
 
     return (
       <div className="AnnoText">
-        <div {... ((language === 'und' ? {} : {lang: iso6393To6391(language)}))}>{annoTextChildren}</div>
+        <div {... ((language === 'und' ? {} : { lang: iso6393To6391(language) }))}>{annoTextChildren}</div>
         {this.renderTooltip()}
         {this.state.selectionRange ? (
-          <CopyInterceptor copyData={[{format: 'text/plain', data: cpSlice(annoText.text, this.state.selectionRange.cpBegin, this.state.selectionRange.cpEnd)}]}/>
+          <CopyInterceptor copyData={[{ format: 'text/plain', data: cpSlice(annoText.text, this.state.selectionRange.cpBegin, this.state.selectionRange.cpEnd) }]} />
         ) : null}
       </div>
     );
