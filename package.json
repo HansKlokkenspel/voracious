@@ -6,7 +6,6 @@
   "repository": "rsimmons/voracious",
   "private": true,
   "dependencies": {
-    "csv-parser": "^2.3.0",
     "diff-match-patch": "^1.0.0",
     "franc": "^4.0.0",
     "iconv-lite": "^0.4.24",
@@ -20,6 +19,7 @@
     "react-router-dom": "^4.1.2",
     "react-router-scroll-4": "^1.0.0-beta.2",
     "react-scripts": "1.1.4",
+    "strip-bom-buf": "^2.0.0",
     "strip-bom-stream": "^4.0.0",
     "webvtt-parser": "annevk/webvtt"
   },

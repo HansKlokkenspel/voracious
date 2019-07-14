@@ -1,7 +1,7 @@
 import path from 'path';
 
-import csv from 'csv-parser'
-import stripBomStream from 'strip-bom-stream'
+import Papa from 'papaparse'; 
+import stripBomStream from 'strip-bom-stream';
 import { getResourcesPath, getUserDataPath } from '../util/appPaths';
 import { loadYomichanZip, indexYomichanEntries } from './yomichan';
 export { importEpwing } from './epwing';
@@ -40,28 +40,33 @@ export const loadKanjiDictionary = (reportProgress, kanjiDictionary) => {
     reportProgress('Opening Kanji dictionary...');
   }
 
-  const results = [];
   const fn = path.join(getResourcesPath(), 'kanji-dictionaries\\kanji.csv');
 
-  fs.createReadStream(fn)
-    .pipe(stripBomStream())
-    .pipe(csv({ separator: '\;' }))
-    .on('data', (data) => results.push(data))
-    .on('end', () => {
-      results.map((row) => {
-        kanjiDictionary[row.Kanji] = {
-          Kanji: row.Kanji,
-          OnReading: row.OnReading,
-          KunReading: row.KunReading,
-          Constituents: row.Constituents,
-          Keyword: row.Keyword,
-          Koohii1: row.Koohii1,
-          Koohii2: row.Koohii2,
-        }
-      })
-    });
-
-  return results;
+  Papa.parse(fs.createReadStream(fn).pipe(stripBomStream()), {
+    header: true,
+    dynamicTyping: true,
+    encoding: "UTF-8",
+    delimiter: ";",
+    step: row => {
+      console.log(row)
+      const rowData = row.data;
+      kanjiDictionary[rowData.Kanji] = {
+        Kanji: rowData.Kanji,
+        OnReading: rowData.OnReading,
+        KunReading: rowData.KunReading,
+        Constituents: rowData.Constituents,
+        Keyword: rowData.Keyword,
+        Koohii1: rowData.Koohii1,
+        Koohii2: rowData.Koohii2,
+      }
+    },
+    error: error => {
+      console.log(error);
+    },
+    complete: results => {
+      console.log('done', results);
+    }
+  });
 }
 
 export const loadDictionaries = async (reportProgress) => {
